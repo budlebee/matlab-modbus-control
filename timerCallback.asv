@@ -1,0 +1,28 @@
+
+t = timer('StartDelay', 2, 'Period', 2, 'TasksToExecute', 5, ...
+          'ExecutionMode', 'fixedRate');
+% 맨 처음 시작할때 4초 딜레이. 이후 period 4초 간격으로 콜백함수를 실행.
+% tasksToExecute 가 5이니 다섯번 실행됨.
+
+t.StartFcn = {@(string)consoleLog, 'My start message'};
+%@(x,y)disp('start');
+%{@my_callback_fcn, 'My start message'};
+% 타이머가 처음시작될때 호출되는 함수
+
+t.StopFcn = @(x,y)disp('end');
+%{ @my_callback_fcn, 'My stop message'};
+% 타이머가 끝날때 호출되는 함수
+
+t.TimerFcn = @(x,y)disp('Hello World!');
+% 타이머 매 execute 때 실행되는 함수
+consoleLog("hello")
+%start(t)
+
+for 1:5
+    
+
+%delete(t)
+
+function consoleLog(string)
+    disp(string)
+end
