@@ -2,13 +2,13 @@ clear all;
 close all; 
 clc; 
 %Create the MODBUS object, using TCP/IP.
-m = modbus('tcpip', '192.168.2.1', 502);
-threshold = 200;
 %{
-m = 
+m = modbus('tcpip');
+m.DeviceAddress = '192.168.2.1';
+m.Port = 502;
+m.Timeout = 20;
 
    Modbus TCPIP with properties:
-
     DeviceAddress: '192.168.2.1'
              Port: 502
            Status: 'open'
@@ -17,32 +17,42 @@ m =
         ByteOrder: 'big-endian'
         WordOrder: 'big-endian'
   %}
-
 %The humidity sensor does not always respond instantly, so increase the timeout value to 20 seconds.
-m.Timeout = 20;
+
 
 thresholdTemp = 200;
-timeInterval = 1;
+timeInterval = 1; % time interval 을 적당한 길이로 잡아야 할듯. 너무 짧으면 power 가 급격히 치솟는 문제가 생길것.
+iterationRange = 1:10;
 
-%The temperature sensor is connected to a holding register at address 1 on the board. Read 1 value to get the current temperature reading. Since temperature value is a double, set the precision to a double.
-for idx = 1:5
+result_1 = zeros(1,11);
+for idx = iterationRange
     disp(idx);
-    temp = read(m,'holdingregs',1,1,'double');
-    % read(m,target,address,count,serverId,precision)
-    % 일단 온도가 계속 오르는 중이면 대기. 어느정도 시간이 지났는데 
-    powerOn(temp, thresholdTemp);
-    pause(timeInterval);
+    %temp = read(m,'holdingregs',1,1,'double');
+    % read(m,target,address,count,precision)
+    % m을 타겟으로 삼아서, 어드레스 1번의 홀딩레지스터를 1개 읽어온다: 배정밀도 double 형식으로.
     
+    % 온도가 어느정도 시간만에 수렴하는지를 몰라서 작성할 수가 없네.
+    %if temp < thresholdTemp
+        % 온도를 높이는 함수를 호출.
+    %else 
+        % 온도를 낮추는 함수를 호출.
+    %end
+    %temp 값을 배열에 집어넣자.
+    %tempResult(idx) = temp
+    tiledlayout(1,2) 
+    
+    nexttile
+    result_1(idx) = randn(1,1);
+    plot(result_1);
+    title('temperature')
+    
+    nexttile
+    bar(randn(1,1));
+    title('power supply')
+    
+    drawnow;
+    pause(timeInterval);
 end
-
-%{
-    ans = 
-   46.7
-    %}
- 
-position = powerOn(temp);
-%The humidity sensor is connected to the holding register at address 5 on the board. Read 1 value to get the current humidity reading.
-read(m,'holdingregs',5,1,'double')
 
 
 function power = powerOn(temp, threshold)
